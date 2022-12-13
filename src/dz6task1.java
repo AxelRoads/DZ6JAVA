@@ -1,63 +1,202 @@
+import java.io.NotActiveException;
+import java.io.Serializable;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+class Notebook implements Serializable {
+    private String name;
+    private int RAM;
+    private int hardDiskSize;
+    private int screenDiagonal;
+    private int price;
+
+    private int filter;
+
+    public Notebook(String name, int RAM, int hardDiskSize, int screenDiagonal, int price) {
+        this.name = name;
+        this.RAM = RAM;
+        this.hardDiskSize = hardDiskSize;
+        this.screenDiagonal = screenDiagonal;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getRAM() {
+        return RAM;
+    }
+
+    public int getHardDiskSize() {
+        return hardDiskSize;
+    }
+
+    public double getScreenDiagonal() {
+        return screenDiagonal;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public int getFilterValue(){
+        return filter;
+    }
+
+    public void setFilter(int criterial){
+        switch (criterial){
+            case 1:
+                filter = RAM;
+                break;
+            case 2:
+                filter = hardDiskSize;
+                break;
+            case 3:
+                filter = screenDiagonal;
+                break;
+            case 4:
+                filter = price;
+                break;
+        }
+    }
+
+    public static final Comparator<Notebook> COMPARE_BY_PRICE = new Comparator<Notebook>() {
+        @Override
+        public int compare(Notebook lhs, Notebook rhs) {
+            lhs.filter = lhs.price;
+            rhs.filter = rhs.price;
+            return lhs.getPrice() - rhs.getPrice();
+        }
+    };
+
+    public static final Comparator<Notebook> COMPARE_BY_RAM = new Comparator<Notebook>() {
+        @Override
+        public int compare(Notebook lhs, Notebook rhs) {
+            lhs.filter = lhs.RAM;
+            rhs.filter = rhs.RAM;
+            return lhs.getRAM() - rhs.getRAM();
+        }
+    };
+
+    public static final Comparator<Notebook> COMPARE_BY_HARDDISKSIZE = new Comparator<Notebook>() {
+        @Override
+        public int compare(Notebook lhs, Notebook rhs) {
+            lhs.filter = lhs.hardDiskSize;
+            rhs.filter = rhs.hardDiskSize;
+            return lhs.getHardDiskSize() - rhs.getHardDiskSize();
+        }
+    };
+
+    public static final Comparator<Notebook> COMPARE_BY_SCREENDIAGONAL = new Comparator<Notebook>() {
+        @Override
+        public int compare(Notebook lhs, Notebook rhs) {
+            lhs.filter = lhs.screenDiagonal;
+            rhs.filter = rhs.screenDiagonal;
+            return (int) (lhs.getScreenDiagonal() - rhs.getScreenDiagonal());
+        }
+    };
+}
+
+class Manager
+{
+    public HashMap<Integer, String> getCritertions() {
+        return critertions;
+    }
+
+    private HashMap<Integer, String> critertions = new HashMap<Integer, String>();
+    public Manager()
+    {
+        critertions.put(1, "ОЗУ");
+        critertions.put(2, "Размер жесткого диска");
+        critertions.put(3, "Диагональ экрана");
+        critertions.put(4, "Цена");
+    }
+
+    public void filterByCriterion(ArrayList<Notebook> notebooks, int criterion) {
+        for (Notebook notebook : notebooks) {
+            notebook.setFilter(criterion);
+        }
+
+        switch (criterion){
+            case 1:
+                System.out.println("Название \t| ОЗУ(Гб)\n--------|--------");
+                break;
+            case 2:
+                System.out.println("Название \t| Обьем ЖД (Гб)\n--------|--------");
+                break;
+            case 3:
+                System.out.println("Название \t| Диагональ\n--------|--------");
+                break;
+            case 4:
+                System.out.println("Название \t| Цена\n--------|--------");
+                break;
+        }
+
+        for (Notebook notebook : notebooks)
+        {
+            System.out.println(notebook.getName() + "\t |" + notebook.getFilterValue());
+        }
+
+    }
+
+    public void sortFilter(ArrayList<Notebook> notebooks, int criterion) {
+        switch (criterion){
+            case 1:
+                Collections.sort(notebooks, Notebook.COMPARE_BY_RAM);
+                System.out.println("Название \t| ОЗУ(Гб)\n--------|--------");
+                break;
+            case 2:
+                Collections.sort(notebooks, Notebook.COMPARE_BY_HARDDISKSIZE);
+                System.out.println("Название \t| Обьем ЖД (Гб)\n--------|--------");
+                break;
+            case 3:
+                Collections.sort(notebooks, Notebook.COMPARE_BY_SCREENDIAGONAL);
+                System.out.println("Название \t| Диагональ\n--------|--------");
+                break;
+            case 4:
+                Collections.sort(notebooks, Notebook.COMPARE_BY_PRICE);
+                System.out.println("Название \t| Цена\n--------|--------");
+                break;
+        }
+
+        for (Notebook notebook : notebooks)
+        {
+            System.out.println(notebook.getName() + "\t |" + notebook.getFilterValue());
+        }
+    }
+}
+
+
 
 public class dz6task1 {
-
     public static void main(String[] args) {
-     
-        System.out.println("\n1. Объявить и инициализировать множества HashSet hs, LinkedHashSet lhs и TreeSet ts:");
-        Set<Integer> hs = new HashSet<>();
-        Set<Integer> lhs = new LinkedHashSet<>();
-        Set<Integer> ts = new TreeSet<>();
-        System.out.println(hs + " - HashSet (hs)\n" + lhs + " - LinkedHashSet (lhs)\n" + ts + " - TreeSet (ts)");
 
-        System.out.println("\n2. Добавить в множества по 10 случайных целочисленных ключей:");
-        hs.addAll(rndmList(10));
-        lhs.addAll(rndmList(10));
-        ts.addAll(rndmList(10));
-        System.out.println("hs: " + hs + "\nlhs: " + lhs + "\nts: " + ts);
+        ArrayList<Notebook> notebooks = new ArrayList<Notebook>();
 
-        System.out.println(
-                "\n3. Пройти по множеству hs и, при условии наличия соответствующего ключа в множестве lhs, удалить ключ из hs:");
-        System.out.println("hs: " + removeElementSet(hs, lhs));
+        Notebook Asus = new Notebook("Asus", 16, 256, 17,1500);
+        Notebook HP = new Notebook("HP", 16, 512, 21,2000);
+        Notebook MacBook = new Notebook("MacBook", 32, 256, 15, 2500);
+        Notebook Lenovo = new Notebook("Lenovo", 8, 512, 20,1700);
 
-        System.out.println(
-                "\n4. Пройти по множеству lhs и, при условии отсутствия соответствующего ключа в множестве ts, добавит ключ в ts:");
-        System.out.println("lhs: " + addElementSet(lhs, ts));
+        notebooks.add(Asus);
+        notebooks.add(HP);
+        notebooks.add(MacBook);
+        notebooks.add(Lenovo);
 
-        System.out.println(
-                "\n5. Объявить и инициализировать множество TreeSet ts1 с компаратором Integer (-1 при значении %2==0 ;0 при ==;1 при значении %2!=0). Заполнить ts1 15 случайными числами и вывести на печать:");
-        Set<Integer> ts1 = new TreeSet<>(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer int1, Integer int2) {
-                return int1 == int2 ? 0 : int2 % 2 == 0 ? -1 : 1;
-            }
-        });
-        ts1.addAll(rndmList(15));
-        System.out.println("ts1: " + ts1 + "\n");
-    }
+        System.out.print("Введите цифру, соответствующую необходимому критерию: \n");
+        Manager manager = new Manager();
 
-    private static List<Integer> rndmList(int sizeList) {
-        List<Integer> rndList = new ArrayList<>();
-        while (rndList.size() < sizeList) {
-            rndList.add((int) (Math.random() * 100));
+        for (Map.Entry entry : manager.getCritertions().entrySet()) {
+            System.out.println(entry.getKey() + " - "
+                    + entry.getValue());
         }
-        return rndList;
-    }
 
-    private static Set<Integer> removeElementSet(Set<Integer> hs, Set<Integer> lhs) {
-        hs.removeAll(lhs);
-        return hs;
-    }
+        Scanner scanner = new Scanner(System.in);
+        int criterion = scanner.nextInt();
 
-    private static Set<Integer> addElementSet(Set<Integer> lhs, Set<Integer> ts) {
-        lhs.addAll(ts);
-        return lhs;
+        System.out.println("\nПодходящие ноутбуки по фильтру " + criterion + ":");
+        manager.filterByCriterion(notebooks, criterion);
+        System.out.println("\nПодходящие ноутбуки по фильтру " + criterion + " c сортировокой:");
+        manager.sortFilter(notebooks, criterion);
     }
 }
